@@ -443,3 +443,12 @@ See https://github.com/abo-abo/avy for more info
 #+BEGIN_SRC emacs-lisp
   (setq org-image-actual-width nil)
 #+END_SRC
+* git
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+      :ensure t
+      :init
+      (progn
+      (bind-key "C-x g" 'magit-status)
+      ))
+#+END_SRC
