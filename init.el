@@ -6,7 +6,7 @@
 	     '("melpa" . "http://elpa.emacs-china.org/melpa/"))
 (add-to-list 'package-archives 
 '("MELPA-Stable" . "http://elpa.emacs-china.org/melpa-stable/"))
- (add-to-list 'package-archives '("vmelpa" . "https://melpa.org/packages/"))
+(add-to-list 'package-archives '("vmelpa" . "https://melpa.org/packages/"))
 (package-initialize)
 
 ;; Bootstrap use-package
