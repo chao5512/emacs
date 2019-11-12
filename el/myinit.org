@@ -34,24 +34,24 @@
 #+END_SRC
 * themes
 #+BEGIN_SRC emacs-lisp
-   (use-package all-the-icons
-     :ensure t
-     :config
-     ;;安装字体，不然后面主题图标会出错’
-     (all-the-icons-install-fonts)
-      )
+  (use-package all-the-icons
+    :ensure t
+    :config
+    ;;安装字体，不然后面主题图标会出错’,刚下载完第一次需要安装
+    ;;(all-the-icons-install-fonts)
+    )
 
-    (use-package doom-themes
-      :requires all-the-icons
-      :ensure t
-      :init
-      ;; Global settings (defaults)
-      (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-            doom-themes-enable-italic t) ; if nil, italics is universally disabled
-      )
+  (use-package doom-themes
+    :requires all-the-icons
+    :ensure t
+    :init
+    ;; Global settings (defaults)
+    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+          doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  
     ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
     ;; may have their own settings.
-    (load-theme 'doom-nord-light t)
+    (load-theme 'doom-nord t)
 
     ;; Enable flashing mode-line on errors
     (doom-themes-visual-bell-config)
@@ -59,12 +59,12 @@
     ;; Enable custom neotree theme (all-the-icons must be installed!)
     ;;(doom-themes-neotree-config)
     ;; or for treemacs users
-    (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
+    ;;(setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
     (doom-themes-treemacs-config)
 
     ;; Corrects (and improves) org-mode's native fontification.
     (doom-themes-org-config)
-
+    )
 
 #+END_SRC
 
@@ -270,15 +270,14 @@ See https://github.com/abo-abo/avy for more info
 #+END_SRC
 ** Reveal.js
 #+BEGIN_SRC emacs-lisp  :tangle no
-    (use-package ox-reveal
-      :ensure t
-      :config
-	(require 'ox-reveal)
-	(setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
-	(setq org-reveal-mathjax t)
+  (use-package ox-reveal
+    :ensure t
+    :init
+    (setq org-reveal-root "http://cdn.jsdelivr.net/reveal.js/3.0.0/")
+    (setq org-reveal-mathjax t)
     )
-	(use-package htmlize
-	:ensure t)
+  (use-package htmlize
+    :ensure t)
 #+END_SRC
 ** Flycheck
 #+BEGIN_SRC emacs-lisp
