@@ -197,44 +197,51 @@
 Swiper gives us a really efficient incremental search with regular expressions
 and Ivy / Counsel replace a lot of ido or helms completion functionality
 #+BEGIN_SRC emacs-lisp
-  
+  (use-package counsel
+    :ensure t
+    :bind
+    (("M-y" . counsel-yank-pop)
+     :map ivy-minibuffer-map
+     ("M-y" . ivy-next-line)))
 
+  (use-package ivy
+    :ensure t
+    :diminish (ivy-mode . "")
+    :bind (("C-x b" . ivy-switch-buffer))
+    :config
+    (ivy-mode 1)
+    (setq ivy-use-virtual-buffers t)
+    (setq enable-recursive-minibuffers t)
+    (setq ivy-height 10)
+    (setq ivy-initial-inputs-alist nil)
+    (setq ivy-count-format "%d/%d ")
+    (setq ivy-display-style 'fancy))
 
+  (use-package swiper
+    :ensure t
+    :bind (("C-s" . swiper)
+           ("C-c C-r" . ivy-resume)
+           ("M-x" . counsel-M-x)
+           ("C-x C-f" . counsel-find-file))
+    :config
+    (progn
+      (ivy-mode 1)
+      (setq ivy-use-virtual-buffers t)
+      (setq ivy-display-style 'fancy)
+      (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)))
+#+END_SRC
+** yasnippet get code by typing short keys
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet
+    :ensure t
+    :init
+    (add-hook 'prog-mode-hook #'yas-minor-mode)
 
-    (use-package counsel
- :ensure t
-   :bind
-   (("M-y" . counsel-yank-pop)
-    :map ivy-minibuffer-map
-    ("M-y" . ivy-next-line)))
-
-
-
-
-   (use-package ivy
-   :ensure t
-   :diminish (ivy-mode)
-   :bind (("C-x b" . ivy-switch-buffer))
-   :config
-   (ivy-mode 1)
-   (setq ivy-use-virtual-buffers t)
-   (setq ivy-count-format "%d/%d ")
-   (setq ivy-display-style 'fancy))
-
-
-   (use-package swiper
-   :ensure t
-   :bind (("C-s" . swiper)
-	  ("C-c C-r" . ivy-resume)
-	  ("M-x" . counsel-M-x)
-	  ("C-x C-f" . counsel-find-file))
-   :config
-   (progn
-     (ivy-mode 1)
-     (setq ivy-use-virtual-buffers t)
-     (setq ivy-display-style 'fancy)
-     (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
-     ))
+    :config
+    (yas-reload-all)
+    (use-package yasnippet-snippets
+      :ensure t)
+  )
 #+END_SRC
 ** Avy - navigate by searching for a letter on the screen and jumping to it
 跳转到能看到的字符前 
@@ -254,19 +261,33 @@ See https://github.com/abo-abo/avy for more info
 ** Company
 #+BEGIN_SRC emacs-lisp
   (use-package company
-  :ensure t
-  :config
-  (setq company-idle-delay 0)
-  (setq company-minimum-prefix-length 3)
+    :ensure t
+    :config
+    (setq company-idle-delay 0)
+    (setq company-minimum-prefix-length 3)
+    (global-company-mode t)
+    (setq company-backends
+          '((company-files company-yasnippet company-capf company-keywords)
+            (company-abbrev company-dabbrev)))
+    (with-eval-after-load 'company
+      (define-key company-active-map (kbd "M-n") nil)
+      (define-key company-active-map (kbd "M-p") nil)
+      (define-key company-active-map (kbd "C-n") #'company-select-next)
+      (define-key company-active-map (kbd "C-p") #'company-select-previous))
+    )
+  ;;为每个模式定制群组’
+  (add-hook 'emacs-lisp-mode-hook
+            (lambda ()
+              (add-to-list (make-local-variable 'company-backends)
+                           '(company-elisp)))
+            )
 
-  (global-company-mode t)
-  )
 
 
-  ;company box mode
+                                          ;company box mode
   (use-package company-box
-  :ensure t
-   :hook (company-mode . company-box-mode))
+    :ensure t
+    :hook (company-mode . company-box-mode))
 #+END_SRC
 ** Reveal.js
 #+BEGIN_SRC emacs-lisp  :tangle no
