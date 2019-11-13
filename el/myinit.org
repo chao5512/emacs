@@ -3,6 +3,8 @@
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'package-archives '("org" . "http://elpa.emacs-china.org/org/") t)
   ;;(add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
+  ;;(add-to-list 'package-archives
+  ;;             '("melpa" . "http://melpa.milkbox.net/packages/") t)
 #+END_SRC
 * interface tweaks
 #+BEGIN_SRC emacs-lisp
@@ -235,16 +237,14 @@ and Ivy / Counsel replace a lot of ido or helms completion functionality
 #+END_SRC
 ** yasnippet get code by typing short keys
 #+BEGIN_SRC emacs-lisp
+
   (use-package yasnippet
     :ensure t
-    :init
-    (add-hook 'prog-mode-hook #'yas-minor-mode)
-
     :config
-    (yas-reload-all)
+    (yas-global-mode)
     (use-package yasnippet-snippets
       :ensure t)
-  )
+    )
 #+END_SRC
 ** Avy - navigate by searching for a letter on the screen and jumping to it
 跳转到能看到的字符前 
@@ -400,7 +400,7 @@ See https://github.com/abo-abo/avy for more info
     (:map global-map
           ("M-0"       . treemacs)
           ("C-x t 1"   . treemacs-delete-other-windows)
-          ("C-x t t"   . treemacs-select-window)
+          ("M--"   . treemacs-select-window)
           ("C-x t B"   . treemacs-bookmark)
           ("C-x t C-t" . treemacs-find-file)
           ("C-x t M-t" . treemacs-find-tag)))
@@ -423,6 +423,21 @@ See https://github.com/abo-abo/avy for more info
     :ensure t)
 
 #+END_SRC
+** projectile
+#+begin_src emacs-lisp
+    (use-package projectile
+      :ensure t
+      :config
+      (projectile-mode t)
+      (setq projectile-completion-system 'ivy)
+      (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+      (use-package counsel-projectile
+        :ensure t
+        :config
+        ;;(define-key counsel-grep-map (kbd "C-c p s g") 'counsel-projectile-grep)
+        )
+      )
+#+end_src
 * diredmode
 #+BEGIN_SRC emacs-lisp
   ;;递归删除拷贝
@@ -469,3 +484,7 @@ See https://github.com/abo-abo/avy for more info
       (bind-key "C-x g" 'magit-status)
       ))
 #+END_SRC
+
+
+
+
