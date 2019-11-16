@@ -30,7 +30,7 @@
   (global-set-key (kbd "C-x y") 'overwrite-mode)
   ;;自动换行
   (add-hook 'org-mode-hook (lambda () (setq truncate-lines nil)))
-  (set-default-font "HanziPen SC:pixelsize=30:weight=normal:slant=normal:width=normal:spacing=0:scalable=true")
+  (set-default-font "HanziPen SC:pixelsize=20:weight=normal:slant=normal:width=normal:spacing=0:scalable=true")
 #+END_SRC
 * recent buffer
 #+BEGIN_SRC emacs-lisp
@@ -476,6 +476,19 @@ See https://github.com/abo-abo/avy for more info
     :ensure
     :config
     (popwin-mode t))
+#+end_src
+** log
+#+begin_src emacs-lisp
+  (use-package command-log-mode
+    :config
+    (global-command-log-mode t))
+#+end_src
+** revert C-x 1
+#+begin_src emacs-lisp
+  (use-package zygospore
+    :ensure t
+    :config
+    (global-set-key (kbd "C-x 1")  'zygospore-toggle-delete-other-windows))
 #+end_src
 * diredmode
 #+BEGIN_SRC emacs-lisp
