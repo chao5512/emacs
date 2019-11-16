@@ -25,7 +25,12 @@
   (setq ring-bell-function 'ignore)
   (delete-selection-mode 1)
   (setq initial-frame-alist (quote ((fullscreen . maximized))))
-  (set-face-attribute 'default nil :height 160)
+  ;; (set-face-attribute 'default nil :height 300)
+  ;;ins
+  (global-set-key (kbd "C-x y") 'overwrite-mode)
+  ;;自动换行
+  (add-hook 'org-mode-hook (lambda () (setq truncate-lines nil)))
+  (set-default-font "HanziPen SC:pixelsize=30:weight=normal:slant=normal:width=normal:spacing=0:scalable=true")
 #+END_SRC
 * recent buffer
 #+BEGIN_SRC emacs-lisp
@@ -77,7 +82,7 @@
     :pin org
     :config
     (global-set-key (kbd "C-c l") 'org-store-link)
-    (global-set-key "\C-c a" 'org-agenda)
+    (global-set-key (kbd "C-c a") 'org-agenda)
     (global-set-key (kbd "C-c c") 'org-capture)
     ;; for inserting inactive dates
     (define-key org-mode-map (kbd "C-c >") (lambda () (interactive (org-time-stamp-inactive))))
@@ -86,14 +91,30 @@
                                  "~/org/schedule.org"
                                  "~/org/inbox.org"))
 
+    ;;找到一个正确插入的位置
+    (defun org-capture-template-goto-link ()
+      (org-capture-put :target (list 'file+headline
+                                     (nth 1 (org-capture-get :target))
+                                     (org-capture-get :annotation)))
+      (org-capture-put-target-region-and-position)
+      (widen)
+      (let ((hd (nth 2 (org-capture-get :target))))
+        (goto-char (point-min))
+        (if (re-search-forward
+             (format org-complex-heading-regexp-format (regexp-quote hd)) nil t)
+              (org-end-of-subtree)
+          (goto-char (point-max))
+          (or (bolp) (insert "\n"))
+          (insert "* " hd "\n"))))
+
     (setq org-capture-templates
           '(
             ("a" "Appointment" entry (file  "~/org/gcal.org" )
              "* %?\n\n%^T\n\n:PROPERTIES:\n\n:END:\n\n")
             ("l" "Link" entry (file+headline "~/org/links.org" "Links")
              "* %? [[%:link][%:description]] \nCaptured On: %U" :prepend t)
-            ("p" "web notes" entry (file+headline "~/org/notes.org" "item")
-             "* %?\nSource:[[%:link][%:description]] %u\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n" :prepend t)
+            ("p" "web notes" entry (file+function "~/org/notes.org" org-capture-template-goto-link)
+             "** %?\nSource:[[%:link][%:description]] \n%u\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n")
             ("L" "web bookmarks" entry (file+headline "~/org/bookmarks.org" "bookmarks")
              "* %?[[%:link][%:description]] \nCaptured On: %U" :prepend t)
             ("b" "Blog idea" entry (file+headline "~/org/i.org" "Blog Topics:")
@@ -247,12 +268,23 @@ and Ivy / Counsel replace a lot of ido or helms completion functionality
     )
 #+END_SRC
 ** Avy - navigate by searching for a letter on the screen and jumping to it
-跳转到能看到的字符前 
 See https://github.com/abo-abo/avy for more info
 #+BEGIN_SRC emacs-lisp
-   (use-package avy
-   :ensure t
-   :bind ("C-r" . avy-goto-word-1)) ;; changed from char as per jcs
+  (use-package avy
+    :ensure t
+    :bind
+    (:map global-map
+          ;;跳转到能看到的字符前,甚至替代了ace-window
+          ("C-r" . avy-goto-word-0)
+          ("C-;" . avy-goto-char-timer)
+          ("M-g l" . avy-goto-line)
+          ("M-g f" . avy-copy-region)
+          ("M-g c" . avy-copy-line)
+          ("M-g k" . avy-kill-region)
+          ("M-g m" . avy-move-region)
+          ("M-g d" . avy-kill-whole-line)
+          )
+    )
 #+END_SRC
 ** youdao
 #+BEGIN_SRC emacs-lisp
@@ -438,6 +470,13 @@ See https://github.com/abo-abo/avy for more info
         )
       )
 #+end_src
+** pop window for quit
+#+begin_src emacs-lisp
+  (use-package popwin
+    :ensure
+    :config
+    (popwin-mode t))
+#+end_src
 * diredmode
 #+BEGIN_SRC emacs-lisp
   ;;递归删除拷贝
@@ -484,6 +523,9 @@ See https://github.com/abo-abo/avy for more info
       (bind-key "C-x g" 'magit-status)
       ))
 #+END_SRC
+
+
+
 
 
 
