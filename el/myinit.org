@@ -6,10 +6,18 @@
   ;;(add-to-list 'package-archives
   ;;             '("melpa" . "http://melpa.milkbox.net/packages/") t)
 #+END_SRC
+* path for mac
+#+begin_src emacs-lisp
+  (use-package exec-path-from-shell
+    :ensure t
+    :config
+    (when (memq window-system '(mac ns))
+     (exec-path-from-shell-initialize)))
+#+end_src
 * interface tweaks
 #+BEGIN_SRC emacs-lisp
   (require 'org-protocol)
-  ;;(setq org-protocol-default-template-key "l")
+  ;;(setq org-protocol-default-tte-key "l")
   (server-start)
   (require 'cl)
   (global-hl-line-mode 1)
@@ -490,6 +498,12 @@ See https://github.com/abo-abo/avy for more info
     :ensure t
     :config
     (global-set-key (kbd "C-x 1")  'zygospore-toggle-delete-other-windows))
+#+end_src
+** w3m
+#+begin_src emacs-lisp
+  (use-package w3m
+    :ensure
+    :commands (w3m))
 #+end_src
 * diredmode
 #+BEGIN_SRC emacs-lisp
