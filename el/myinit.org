@@ -207,17 +207,18 @@
 ** ace window
 #+BEGIN_SRC emacs-lisp
   (use-package ace-window
-  :ensure t
-  :init
-  (progn
-  (setq aw-scope 'frame)
-  (setq aw-dispatch-always 't)
-  (global-set-key (kbd "C-x O") 'other-frame)
-    (global-set-key [remap other-window] 'ace-window)
-    (custom-set-faces
-     '(aw-leading-char-face
-       ((t (:inherit ace-jump-face-foreground :height 3.0))))) 
-    ))
+    :ensure t
+    :init
+    (progn
+      (setq aw-scope 'frame)
+      ;;(setq aw-dispatch-always 't)
+      (global-set-key (kbd "C-x O") 'other-frame)
+      (global-set-key [remap other-window] 'ace-window)
+      ;;(global-set-key (kbd "C-x p") 'ace-window)
+      (custom-set-faces
+       '(aw-leading-char-face
+         ((t (:inherit ace-jump-face-foreground :height 3.0))))) 
+      ))
 #+END_SRC
 ** Swiper / Ivy / Counsel
 Swiper gives us a really efficient incremental search with regular expressions
@@ -536,10 +537,3 @@ See https://github.com/abo-abo/avy for more info
       (bind-key "C-x g" 'magit-status)
       ))
 #+END_SRC
-
-
-
-
-
-
-
