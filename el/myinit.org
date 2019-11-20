@@ -37,6 +37,8 @@
   ;;ins
   (global-set-key (kbd "C-x y") 'overwrite-mode)
   ;;自动换行
+  ;;(setq truncate-lines nil)
+  (add-hook 'w3m-mode-hook (lambda () (setq truncate-lines nil)))
   (add-hook 'org-mode-hook (lambda () (setq truncate-lines nil)))
   (set-default-font "HanziPen SC:pixelsize=20:weight=normal:slant=normal:width=normal:spacing=0:scalable=true")
 #+END_SRC
@@ -504,6 +506,16 @@ See https://github.com/abo-abo/avy for more info
   (use-package w3m
     :ensure
     :commands (w3m))
+#+end_src
+** image
+#+begin_src emacs-lisp
+  (use-package org-download
+    :ensure t
+    :bind ("C-S-y" . org-download-yank)  
+    :config
+    ;; add support to dired
+    (add-hook 'dired-mode-hook 'org-download-enable)
+  )
 #+end_src
 * diredmode
 #+BEGIN_SRC emacs-lisp
