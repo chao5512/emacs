@@ -468,18 +468,20 @@ See https://github.com/abo-abo/avy for more info
 #+END_SRC
 ** projectile
 #+begin_src emacs-lisp
-    (use-package projectile
+  (use-package projectile
+    :ensure t
+    :config
+    (projectile-mode t)
+    (setq projectile-completion-system 'ivy)
+    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+    (use-package counsel-projectile
       :ensure t
       :config
-      (projectile-mode t)
-      (setq projectile-completion-system 'ivy)
-      (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-      (use-package counsel-projectile
-        :ensure t
-        :config
-        ;;(define-key counsel-grep-map (kbd "C-c p s g") 'counsel-projectile-grep)
-        )
+      (counsel-projectile-mode t)
+      (define-key counsel-grep-map (kbd "C-c p s g") 'counsel-projectile-grep)
+      (define-key counsel-ag-map (kbd "C-c p s s") 'counsel-projectile-ag)
       )
+    )
 #+end_src
 ** pop window for quit
 #+begin_src emacs-lisp
@@ -515,6 +517,8 @@ See https://github.com/abo-abo/avy for more info
     :config
     ;; add support to dired
     (add-hook 'dired-mode-hook 'org-download-enable)
+    ;; 设置org中图片宽度
+    (setq org-image-actual-width '(350))
   )
 #+end_src
 * diredmode
