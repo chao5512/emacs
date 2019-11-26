@@ -561,9 +561,13 @@ See https://github.com/abo-abo/avy for more info
 * git
 #+BEGIN_SRC emacs-lisp
   (use-package magit
-      :ensure t
-      :init
-      (progn
-      (bind-key "C-x g" 'magit-status)
-      ))
+    :ensure t
+    :init
+    (progn
+      (bind-key "C-x g" 'magit-status))
+    ;设置为每次调用magit-status即保存当前仓库中的所有track file
+    (setq magit-save-repository-buffers 'dontask)
+    )
 #+END_SRC
+* programing
+** groovy
