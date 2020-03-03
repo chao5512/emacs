@@ -68,7 +68,7 @@
   
     ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each theme
     ;; may have their own settings.
-    (load-theme 'doom-nord t)
+    (load-theme 'doom-solarized-light t)
 
     ;; Enable flashing mode-line on errors
     (doom-themes-visual-bell-config)
@@ -329,7 +329,6 @@ See https://github.com/abo-abo/avy for more info
             )
 
 
-
                                           ;company box mode
   (use-package company-box
     :ensure t
@@ -571,3 +570,63 @@ See https://github.com/abo-abo/avy for more info
 #+END_SRC
 * programing
 ** groovy
+* uml
+#+begin_src emacs-lisp
+  (use-package plantuml-mode
+    :ensure
+    :init
+    ;; Open the .pu extension file with plantuml-mode
+    (add-to-list 'auto-mode-alist '("\.puml$" . plantuml-mode))
+    ;; active Org-babel languages
+    (add-to-list
+    'org-src-lang-modes '("plantuml" . plantuml))
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '(;; other Babel languages
+       (plantuml . t)))
+    (setq org-plantuml-jar-path
+          (expand-file-name "~/env/plantuml.jar"))
+    ;; Sample jar configuration
+    (setq plantuml-jar-path "~/env/plantuml.jar")
+    (setq plantuml-default-exec-mode 'jar)
+    (setq plantuml-java-options "")
+    ;; Comment in here if you want to preview plantuml as svg, png
+    ;; Display ASCII art by default
+    ;;(setq plantuml-output-type "svg")
+    ;; chart is utf-8
+    (setq plantuml-options "-charset UTF-8")
+
+
+    (defun my-org-confirm-babel-evaluate (lang body)
+      "Do not ask for confirmation to evaluate code for specified languages."
+      (member lang '("puml")))
+    ;; trust certain code as being safe
+    (setq org-confirm-babel-evaluate 'my-org-confirm-babel-evaluate)
+    ;; automatically show the resulting image
+    (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
+    )
+#+end_src
+
+#+RESULTS:
+
+* ui
+** nyan-mode
+#+begin_src emacs-lisp
+  (use-package nyan-mode
+    :ensure
+    :init
+    (nyan-mode t))
+#+end_src
+** mode-line
+#+begin_src emacs-lisp
+  (use-package doom-modeline
+        :ensure t
+        :hook (after-init . doom-modeline-mode))
+#+end_src
+** monitor
+#+begin_src emacs-lisp
+  (use-package symon
+    :ensure
+    :init
+    (symon-mode t))
+#+end_src
