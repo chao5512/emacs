@@ -40,8 +40,20 @@
   ;;(setq truncate-lines nil)
   (add-hook 'w3m-mode-hook (lambda () (setq truncate-lines nil)))
   (add-hook 'org-mode-hook (lambda () (setq truncate-lines nil)))
-  (set-default-font "HanziPen SC:pixelsize=20:weight=normal:slant=normal:width=normal:spacing=0:scalable=true")
+  ;;(set-default-font "HanziPen SC:pixelsize=20:weight=normal:slant=normal:width=normal:spacing=0:scalable=true")
 #+END_SRC
+* english & chinese
+中文和英文对齐
+#+begin_src emacs-lisp
+  (use-package cnfonts
+    :ensure t
+    :config
+    (cnfonts-enable)
+    (global-set-key (kbd "s--") 'cnfonts-decrease-fontsize)
+    (global-set-key (kbd "s-=") 'cnfonts-increase-fontsize)
+
+    )
+ #+end_src
 * recent buffer
 #+BEGIN_SRC emacs-lisp
 (require 'recentf)
@@ -96,58 +108,11 @@
     (global-set-key (kbd "C-c c") 'org-capture)
     ;; for inserting inactive dates
     (define-key org-mode-map (kbd "C-c >") (lambda () (interactive (org-time-stamp-inactive))))
-    (setq org-agenda-files (list "~/org/gcal.org"
-                                 "~/org/i.org"
-                                 "~/org/schedule.org"
-                                 "~/org/inbox.org"))
-
-    ;;找到一个正确插入的位置
-    (defun org-capture-template-goto-link ()
-      (org-capture-put :target (list 'file+headline
-                                     (nth 1 (org-capture-get :target))
-                                     (org-capture-get :annotation)))
-      (org-capture-put-target-region-and-position)
-      (widen)
-      (let ((hd (nth 2 (org-capture-get :target))))
-        (goto-char (point-min))
-        (if (re-search-forward
-             (format org-complex-heading-regexp-format (regexp-quote hd)) nil t)
-              (org-end-of-subtree)
-          (goto-char (point-max))
-          (or (bolp) (insert "\n"))
-          (insert "* " hd "\n"))))
-
-    (setq org-capture-templates
-          '(
-            ("a" "Appointment" entry (file  "~/org/gcal.org" )
-             "* %?\n\n%^T\n\n:PROPERTIES:\n\n:END:\n\n")
-            ("l" "Link" entry (file+headline "~/org/links.org" "Links")
-             "* %? [[%:link][%:description]] \nCaptured On: %U" :prepend t)
-            ("p" "web notes" entry (file+function "~/org/notes.org" org-capture-template-goto-link)
-             "** %?\nSource:[[%:link][%:description]] \n%u\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n")
-            ("L" "web bookmarks" entry (file+headline "~/org/bookmarks.org" "bookmarks")
-             "* %?[[%:link][%:description]] \nCaptured On: %U" :prepend t)
-            ("b" "Blog idea" entry (file+headline "~/org/i.org" "Blog Topics:")
-             "* %?\n%T" :prepend t)
-            ("t" "To Do Item" entry (file+headline "~/org/i.org" "To Do")
-             "* TODO %?\n%u" :clock-in t :clock-resume t :prepend t)
-            ("n" "Note" entry (file+headline "~/org/i.org" "Note space")
-             "* %?\n%u" :prepend t)
-            ("x" "inbox" entry (file "~/org/inbox.org")
-             "* %?\n%T" :clock-in t :clock-resume t :prepend t)
-            ))
-    (setq org-agenda-custom-commands
-          '(("c" "别逛了！！进来闲着啊~"
-             ((tags "PRIORITY=\"A\""
-                    ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                     (org-agenda-overriding-header "这些任务就给你看看，千万别做，就放着:")))
-              (agenda "")
-              (alltodo "")))))
     (setq org-hide-leading-stars t)
+    ;;代码块中的code上色
     (setq org-src-fontify-natively t)
-    (setq org-log-done 'time)
-    (setq org-directory "~/org")
-    (setq org-default-notes-file (concat org-directory "/notes.org"))
+
+
     (use-package org-bullets
       :ensure t
       :config
@@ -162,21 +127,34 @@
    )
 
 #+END_SRC
+
+#+RESULTS:
+
 * pomodoro
 #+BEGIN_SRC emacs-lisp
   (use-package pomodoro
     :bind
     ("s-p" . org-pomodoro))
-
+#+END_SRC
+* GTD
+get things done！花更多的时间关注下一件要做的事
+** 定义任务状态
+变量org-todo-keywords用于指定可给任务赋予的状态关键词。该变量的值为一组序列（sequence）构成的列表。每一个序列以符号type或sequence开头，其后则是一组用于定义任务状态关键词的字符串。若这一组字符串中的某一个为竖线|，则在竖线前的所有字符串代表任务未结束的状态，之后的则代表任务结束的状态。若没有竖线，则仅最后一个字符串代表任务结束的状态，其之前所有的字符串都代表任务未结束的状态。这样的type或sequence序列可以定义多个。但是对于一般的任务管理来说，只定义一个就足够了。
+#+BEGIN_SRC emacs-lisp
+  ;;(setq org-todo-keywords
+  ;;    '((sequence "TODO(t)" "NEXT(n)" "SOMEDAY(s)" "|" "DONE(d@/!)" "ABORT(a@/!)")
+  ;;	))
   (setq org-todo-keywords
-        '((sequence "TODO(t!)" "NEXT(n)" "SOMEDAY(s)" "|" "DONE(d@/!)" "ABORT(a@/!)")
-          ))
+        '((sequence "TODO(t)" "ONMYWAY(o)" "MAYBE(m)" "WAIT(w)" "|"
+                    "DONE(d)" "CANCELLED(c)" "BLOCKING(b)")))
+  ;;任务切到done时 自动加上时间戳
+  (setq org-log-done 'time)
   (setq org-todo-keyword-faces
         '(("NEXT" .      (:background "red" :foreground "white" :weight bold))
-          ("SOMEDAY" .   (:background "DarkOrange":foreground "MediumBlue" :weight bold)) 
+          ("SOMEDAY" .   (:background "DarkOrange":foreground "MediumBlue" :weight bold))
           ("PENDING" .   (:background "LightGreen" :foreground "gray" :weight bold))
           ("TODO" .      (:background "DarkOrange" :foreground "black" :weight bold))
-          ("DONE" .      (:background "azure" :foreground "Darkgreen" :weight bold)) 
+          ("DONE" .      (:background "azure" :foreground "Darkgreen" :weight bold))
           ("ABORT" .     (:background "gray" :foreground "black"))
           ))
 
@@ -201,6 +179,171 @@
 
   (add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
 #+END_SRC
+*** 说明
+- ！：切换到该状态时会自动增加时间戳
+- @ ：切换到该状态时要求输入文字说明
+- 如果同时设定@和！，使用“@/!”
+*** 快捷键
+
+| key          | 功能         |
+| C-c C-t      | 状态定义界面 |
+| S-left/right | 切换状态     |
+| S-up/down    | 优先级切换   |
+** 任务组标签
+在Org mode中，当光标处于某个任务条目上时，按下快捷键C-c C-c，即可为该任务设置标签。对于任务组，我会为其加上标签TG予以识别。默认情况下，某一层级条目的标签会被其所包含的所有子条目继承。这样一来，当想要通过搜索标签TG来查看所有任务组时，具体的细节任务也会一并列出，干扰视线。为此，需要设置变量org-tags-exclude-from-inheritance，对TG标签禁用继承。
+#+begin_src emacs-lisp
+ (setq org-tags-exclude-from-inheritance '("TG"))
+#+end_src
+
+** org-Agenda
+日程
+*** 自定义日程视图简介
+Org mode中的日程视图（Agenda view）具有强大的模式匹配与搜索能力。通过过滤用户指定的任务状态关键词、标签、时间戳以及自定义条件，可以生成几乎可以满足用户任何需求的视图。以数学的方式来讲，这就相当于将整个复杂的任务体系投影到我们所关注的不同空间中，对任务进行多角度地审视与把握，从而使我们在做任务管理的时候达到理清思路、聚集重点、不放过任何细节的良好效果。
+**** 格式
+日程视图的定义需要通过设置变量org-agenda-custom-commands来完成。该变量是一个列表，其中的每一项对应一个视图设置。这个视图设置的基本格式为：(key desc type match settings files)
+- key：当用户执行org-agenda命令时，会弹出*Agenda Commands*缓冲区，其中包含了系统默认和用户自定义的日程视图。每个日程视图均对应一个快捷字母。当用户按下这个字母时，则可以进入到相应的视图中查看。这里的key则代表快捷字母。
+
+- desc：日程视图的说明。
+
+- type：日程视图的类型，即用于定义将哪些类型的任务条目收录到该视图中。通常用到的类型有：
+
+  1. agenda：基于日或周的日程。
+
+  2. todo：包含有特定状态关键词的任务条目。
+
+  3. alltodo：所有处于未结束状态的任务条目，即，状态关键词为org-todo-keywords设置中竖线之前的。
+
+  4. tags：包含指定标签的条目。
+
+- match：用于指定与之前type对应的匹配条件。例如，当type为todo时，match若为"DONE"，则匹配状态关键词为DONE的任务条目。如果没有匹配条件需要定义，则这一项为空字符串。
+
+- settings：用于指定匹配时应满足的一系列选项设置。settings的格式类似用于定义局部变量的let形式，即((option1 value1) (option2 value2) ...)
+
+  1. org-agenda-skip-function：用于设定忽略条件的函数对象。
+
+  2. org-agenda-overriding-header：用于设定日程视图的台头提示信息。
+
+  3. org-agenda-files：这个变量的值是一个字符串列表，用于指定从哪些Org文件中提取信息。默认情况是从所有的Org文件中提取信息。
+
+- files：用于指定当执行了org-store-agenda-views命令后需要将日程视图自动导出的文件。可以是HTML格式，也可以是纯文本格式。这个功能非常方便：当用户将所有的视图都定义好后，可以定期地直接将其全部导出。既可以放在HTTP服务器上统一浏览，也可以在审阅后存档，形成历史记录。
+**** 视图组
+随着日积月累，当用户定义的日程视图比较多时，管理起来就会较为混乱，同时可供绑定的字母快捷键也开始不够用。为此，可以将功能、类别相似的视图归为一组。这个组视图在org-agenda-custom-commands中的定义方式为：
+ (Group-key . desc)
+其中的Group-key为一个字母，指定了组的快捷键。
+当组定义好了之后，随后便可以定义组内的各个日程视图。每个日程视图的定义与前面所述相同，
+ (Group-KeyView-Key desc type match settings files)
+只是其key为两个字母，第一个字母为Group-key，第二个字母View-key为日程视图自己的快捷捷。当用户执行org-agenda时，按下Group-key先进入组视图，再按下View-key则进入到指定的日程视图中。
+**** code
+#+begin_src emacs-lisp
+  ;; Skip entries which only have timestamp but no TODO keywords.
+  (defun org-agenda-skip-only-timestamp-entries ()
+    "排除有时间戳但是没有todo关键字的条目."
+    (org-agenda-skip-entry-if 'nottodo 'any))
+  ;; Skip entries which are not deadlines.
+  (defun org-agenda-skip-not-deadline-entries ()
+    "忽略不包含DEADLINE时间戳的条目."
+    (org-agenda-skip-entry-if 'notdeadline))
+  ;; Skip entries which are not finished.
+  (defun org-agenda-skip-unfinished-entries ()
+    "忽略所有不包含DONE状态关键词的任务条目."
+    (org-agenda-skip-entry-if 'nottodo '("DONE")))
+  ;; Skip unscheduled entries.
+  (defun wc/org-agenda-skip-scheduled-entries ()
+    "忽略所有已经加了时间戳、状态关键词为ONMYWAY、WAIT或DELEGATED的任务条目。同时，包含了TG标签的任务也被排除在外。这是因为任务组只是具体任务的容器，故不参与到实际任务的安排中。."
+    (org-agenda-skip-entry-if 'timestamp
+                              'todo '("ONMYWAY" "WAIT" "MAYBE")
+                              'regexp ":TG:"))
+  (defvar  org-agenda-directory "~/org/agenda"
+    "Agenda日程根目录."
+    )
+  ;;定义总的默认视图与各个项目自己的默认视图
+
+
+  (setq org-agenda-custom-commands
+        '(
+          ;; Display general agenda for each project.
+          ("A" . "Default agenda view")
+          ("Aa" "Agenda for all projects"
+           agenda ""
+           ((org-agenda-skip-function 'org-agenda-skip-only-timestamp-entries)
+            (org-agenda-overriding-header "Agenda for all projects: "))
+           (concat org-agenda-directory "/out/Agenda-All.html"))
+          ("Ac" "Study"
+           agenda ""
+           ((org-agenda-skip-function 'org-agenda-skip-only-timestamp-entries)
+            (org-agenda-overriding-header "Agenda for study: ")
+            ;;从study目录下的org文件中抽取符合条件的条目
+            (org-agenda-files (list (concat org-directory "/study"))))
+           (concat org-agenda-directory "/out/Agenda-Study.html"))
+          ;; Inbox for displaying unscheduled tasks.
+          ("I" . "Inbox")
+          ("Ia" "Inbox for all unfinished TODOs"
+           alltodo ""
+           ((org-agenda-skip-function 'wc/org-agenda-skip-scheduled-entries)
+            (org-agenda-overriding-header "Inbox items: "))
+           (concat org-agenda-directory "/out/Inbox-All.html"))
+          ("Ic" "Study"
+           alltodo ""
+           ((org-agenda-skip-function 'wc/org-agenda-skip-scheduled-entries)
+            (org-agenda-overriding-header "Inbox items for study: ")
+            (org-agenda-files (list (concat org-directory "/study"))))
+           '(concat org-agenda-directory "/out/Inbox-Study.html"))
+
+
+           ("c" "别逛了！！进来闲着啊~"
+            ((tags "PRIORITY=\"A\""
+                   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                    (org-agenda-overriding-header "这些任务就给你看看，千万别做，就放着:")))
+             (agenda "")
+             (alltodo "")))
+           ))
+          (setq org-agenda-files (list "~/org/gcal.org"
+                                       "~/org/i.org"
+                                       "~/org/schedule.org"
+                                       "~/org/workinbonree.org"
+                                       "~/org/inbox.org"))
+#+end_src
+** org-capture
+org收集工具
+#+begin_src emacs-lisp
+  (setq org-directory "~/org")
+  (setq org-default-notes-file (concat org-directory "/notes.org"))
+  (setq org-capture-templates
+        '(
+          ("a" "Appointment" entry (file  "~/org/gcal.org" )
+           "* %?\n\n%^T\n\n:PROPERTIES:\n\n:END:\n\n")
+          ("l" "Link" entry (file+headline "~/org/links.org" "Links")
+           "* %? [[%:link][%:description]] \nCaptured On: %U" :prepend t)
+          ("p" "web notes" entry (file+function "~/org/notes.org" org-capture-template-goto-link)
+           "** %?\nSource:[[%:link][%:description]] \n%u\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n\n")
+          ("L" "web bookmarks" entry (file+headline "~/org/bookmarks.org" "bookmarks")
+           "* %?[[%:link][%:description]] \nCaptured On: %U" :prepend t)
+          ("b" "Blog idea" entry (file+headline "~/org/i.org" "Blog Topics:")
+           "* %?\n%T" :prepend t)
+          ("t" "To Do Item" entry (file+headline "~/org/i.org" "To Do")
+           "* TODO %?\n%u" :clock-in t :clock-resume t :prepend t)
+          ("n" "Note" entry (file+headline "~/org/i.org" "Note space")
+           "* %?\n%u" :prepend t)
+          ("x" "inbox" entry (file "~/org/inbox.org")
+           "* %?\n%T" :clock-in t :clock-resume t :prepend t)
+          ))
+  ;;找到一个正确插入的位置
+  (defun org-capture-template-goto-link ()
+    (org-capture-put :target (list 'file+headline
+                                   (nth 1 (org-capture-get :target))
+                                   (org-capture-get :annotation)))
+    (org-capture-put-target-region-and-position)
+    (widen)
+    (let ((hd (nth 2 (org-capture-get :target))))
+      (goto-char (point-min))
+      (if (re-search-forward
+           (format org-complex-heading-regexp-format (regexp-quote hd)) nil t)
+          (org-end-of-subtree)
+        (goto-char (point-max))
+        (or (bolp) (insert "\n"))
+        (insert "* " hd "\n"))))
+
+#+end_src
 * packages
 ** try
 #+BEGIN_SRC emacs-lisp
@@ -356,6 +499,7 @@ See https://github.com/abo-abo/avy for more info
 ** Misc packages
 #+BEGIN_SRC emacs-lisp
        ; flashes the cursor's line when you scroll
+       ; 高亮当前行
        (use-package beacon
        :ensure t
        :config
@@ -496,6 +640,7 @@ See https://github.com/abo-abo/avy for more info
     (global-command-log-mode t))
 #+end_src
 ** revert C-x 1
+再按一次 C-x 1 恢复关闭的其他窗口
 #+begin_src emacs-lisp
   (use-package zygospore
     :ensure t
@@ -620,9 +765,17 @@ See https://github.com/abo-abo/avy for more info
 ** mode-line
 #+begin_src emacs-lisp
   (use-package doom-modeline
-        :ensure t
-        :hook (after-init . doom-modeline-mode))
+    :ensure t
+    :hook (after-init . doom-modeline-mode)
+    :config
+    (custom-set-faces
+    '(mode-line ((t (:family "Noto Sans" :height 0.9))))
+    '(mode-line-inactive ((t (:family "Noto Sans" :height 0.9))))))
 #+end_src
+
+#+RESULTS:
+| doom-modeline-mode | magit-auto-revert-mode--init-kludge | magit-startup-asserts | magit-version |
+
 ** monitor
 #+begin_src emacs-lisp
   (use-package symon

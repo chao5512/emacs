@@ -47,7 +47,7 @@
      ("org" . "http://elpa.emacs-china.org/org/"))))
  '(package-selected-packages
    (quote
-    (esup symon doom-modeline nyan-mode plantuml-mode plantuml goovy-mode meghanada org-download exec-path-from-shell execute-path-from-shell w3m zygospore command-log-mode popwin counsel-projectile yasnippet-snippets yasnippet org-pomodoro smartparens noflet undo-tree hungry-delete flycheck ox-reveal org org-bullets htmlize alect-themes poet-theme company-box company youdao-dictionary ace-window which-key try use-package)))
+    (cnfonts esup symon doom-modeline nyan-mode plantuml-mode plantuml goovy-mode meghanada org-download exec-path-from-shell execute-path-from-shell w3m zygospore command-log-mode popwin counsel-projectile yasnippet-snippets yasnippet org-pomodoro smartparens noflet undo-tree hungry-delete flycheck ox-reveal org org-bullets htmlize alect-themes poet-theme company-box company youdao-dictionary ace-window which-key try use-package)))
  '(pdf-view-midnight-colors (quote ("#b2b2b2" . "#292b2e")))
  '(show-paren-mode t)
  '(smartparens-global-mode t)
