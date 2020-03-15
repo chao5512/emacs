@@ -236,15 +236,15 @@ Org mode中的日程视图（Agenda view）具有强大的模式匹配与搜索�
 **** code
 #+begin_src emacs-lisp
   ;; Skip entries which only have timestamp but no TODO keywords.
-  (defun org-agenda-skip-only-timestamp-entries ()
+  (defun wc/org-agenda-skip-only-timestamp-entries ()
     "排除有时间戳但是没有todo关键字的条目."
     (org-agenda-skip-entry-if 'nottodo 'any))
   ;; Skip entries which are not deadlines.
-  (defun org-agenda-skip-not-deadline-entries ()
+  (defun wc/org-agenda-skip-not-deadline-entries ()
     "忽略不包含DEADLINE时间戳的条目."
     (org-agenda-skip-entry-if 'notdeadline))
   ;; Skip entries which are not finished.
-  (defun org-agenda-skip-unfinished-entries ()
+  (defun wc/org-agenda-skip-unfinished-entries ()
     "忽略所有不包含DONE状态关键词的任务条目."
     (org-agenda-skip-entry-if 'nottodo '("DONE")))
   ;; Skip unscheduled entries.
@@ -253,6 +253,7 @@ Org mode中的日程视图（Agenda view）具有强大的模式匹配与搜索�
     (org-agenda-skip-entry-if 'timestamp
                               'todo '("ONMYWAY" "WAIT" "MAYBE")
                               'regexp ":TG:"))
+
   (defvar  org-agenda-directory "~/org/agenda"
     "Agenda日程根目录."
     )
@@ -265,16 +266,31 @@ Org mode中的日程视图（Agenda view）具有强大的模式匹配与搜索�
           ("A" . "Default agenda view")
           ("Aa" "Agenda for all projects"
            agenda ""
-           ((org-agenda-skip-function 'org-agenda-skip-only-timestamp-entries)
+           ((org-agenda-skip-function 'wc/org-agenda-skip-only-timestamp-entries)
             (org-agenda-overriding-header "Agenda for all projects: "))
            (concat org-agenda-directory "/out/Agenda-All.html"))
+          ("Ab" "Work"
+           agenda ""
+           ((org-agenda-skip-function 'wc/org-agenda-skip-only-timestamp-entries)
+            (org-agenda-overriding-header "Agenda for work: ")
+            ;;从study目录下的org文件中抽取符合条件的条目
+            (org-agenda-files (list (concat org-directory "/work"))))
+           (concat org-agenda-directory "/out/Agenda-Work.html"))
           ("Ac" "Study"
            agenda ""
-           ((org-agenda-skip-function 'org-agenda-skip-only-timestamp-entries)
+           ((org-agenda-skip-function 'wc/org-agenda-skip-only-timestamp-entries)
             (org-agenda-overriding-header "Agenda for study: ")
             ;;从study目录下的org文件中抽取符合条件的条目
             (org-agenda-files (list (concat org-directory "/study"))))
            (concat org-agenda-directory "/out/Agenda-Study.html"))
+          ("Ap" "Personal"
+           agenda ""
+           ((org-agenda-skip-function 'wc/org-agenda-skip-only-timestamp-entries)
+            (org-agenda-overriding-header "Agenda for myself: ")
+            ;;从personal目录下的org文件中抽取符合条件的条目
+            (org-agenda-files (list (concat org-directory "/personal"))))
+           (concat org-agenda-directory "/out/Agenda-Personal.html"))
+
           ;; Inbox for displaying unscheduled tasks.
           ("I" . "Inbox")
           ("Ia" "Inbox for all unfinished TODOs"
@@ -282,27 +298,104 @@ Org mode中的日程视图（Agenda view）具有强大的模式匹配与搜索�
            ((org-agenda-skip-function 'wc/org-agenda-skip-scheduled-entries)
             (org-agenda-overriding-header "Inbox items: "))
            (concat org-agenda-directory "/out/Inbox-All.html"))
+          ("Ib" "Work"
+           alltodo ""
+           ((org-agenda-skip-function 'wc/org-agenda-skip-scheduled-entries)
+            (org-agenda-overriding-header "Inbox items for work: ")
+            (org-agenda-files (list (concat org-directory "/work"))))
+           '(concat org-agenda-directory "/out/Inbox-Work.html"))
           ("Ic" "Study"
            alltodo ""
            ((org-agenda-skip-function 'wc/org-agenda-skip-scheduled-entries)
             (org-agenda-overriding-header "Inbox items for study: ")
             (org-agenda-files (list (concat org-directory "/study"))))
            '(concat org-agenda-directory "/out/Inbox-Study.html"))
+          ("Ip" "Personal"
+           alltodo ""
+           ((org-agenda-skip-function 'wc/org-agenda-skip-scheduled-entries)
+            (org-agenda-overriding-header "Inbox items for myself: ")
+            (org-agenda-files (list (concat org-directory "/personal"))))
+           '(concat org-agenda-directory "/out/Inbox-Personal.html"))
 
 
-           ("c" "别逛了！！进来闲着啊~"
-            ((tags "PRIORITY=\"A\""
-                   ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                    (org-agenda-overriding-header "这些任务就给你看看，千万别做，就放着:")))
-             (agenda "")
-             (alltodo "")))
-           ))
-          (setq org-agenda-files (list "~/org/gcal.org"
-                                       "~/org/i.org"
-                                       "~/org/schedule.org"
-                                       "~/org/workinbonree.org"
-                                       "~/org/inbox.org"))
+          ;; Display all tasks with deadline.
+          ("D" . "Agenda view for deadlines")
+          ("Da" "Agenda view for all deadlines"
+           agenda ""
+           ((org-agenda-skip-function 'wc/org-agenda-skip-not-deadline-entries)
+            (org-agenda-overriding-header "All deadlines: "))
+           (concat org-agenda-directory "/out/Deadline-All.html"))
+          ("Db" "Work"
+           agenda ""
+           ((org-agenda-skip-function 'wc/org-agenda-skip-not-deadline-entries)
+            (org-agenda-overriding-header "Deadlines for work: ")
+            (org-agenda-files (list (concat org-directory "/work"))))
+           (concat org-agenda-directory "/out/Deadline-Work.html"))
+          ("Dc" "Study"
+           agenda ""
+           ((org-agenda-skip-function 'wc/org-agenda-skip-not-deadline-entries)
+            (org-agenda-overriding-header "Deadlines for study: ")
+            (org-agenda-files (list (concat org-directory "/study"))))
+           (concat org-agenda-directory "/out/Deadline-Study.html"))
+          ("Dp" "Personal"
+           agenda ""
+           ((org-agenda-skip-function 'wc/org-agenda-skip-not-deadline-entries)
+            (org-agenda-overriding-header "Deadlines for myself: ")
+            (org-agenda-files (list (concat org-directory "/personal"))))
+           (concat org-agenda-directory "/out/Deadline-Personal.html"))
+
+
+          ;; Display all finished tasks.
+          ("F" . "Agenda view for finished tasks")
+          ("Fa" "Agenda view for all finished tasks"
+           agenda ""
+           ((org-agenda-skip-function 'wc/org-agenda-skip-unfinished-entries)
+            (org-agenda-overriding-header "All finished tasks: "))
+           (concat org-agenda-directory  "/out/Done-All.html"))
+          ("Fb" "Work"
+           agenda ""
+           ((org-agenda-skip-function 'wc/org-agenda-skip-unfinished-entries)
+            (org-agenda-overriding-header "Finished tasks for work: ")
+            (org-agenda-files (list (concat org-directory "/work")))
+            (concat org-agenda-directory "/out/Done-Work.html")))
+          ("Fc" "Study"
+           agenda ""
+           ((org-agenda-skip-function 'wc/org-agenda-skip-unfinished-entries)
+            (org-agenda-overriding-header "Finished tasks for study: ")
+            (org-agenda-files (list (concat org-directory "/study")))
+            (concat org-agenda-directory "/out/Done-Study.html")))
+          ("Fp" "personal"
+           agenda ""
+           ((org-agenda-skip-function 'wc/org-agenda-skip-unfinished-entries)
+            (org-agenda-overriding-header "Finished tasks for personal: ")
+            (org-agenda-files (list (concat org-directory "/personal")))
+            (concat org-agenda-directory "/out/Done-Personal.html")))
+
+          ("c" "别逛了！！进来闲着啊~"
+           ((tags "PRIORITY=\"A\""
+                  ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                   (org-agenda-overriding-header "这些任务就给你看看，千万别做，就放着:")))
+            (agenda "")
+            (alltodo "")))
+          ))
+  (setq org-agenda-files (list "~/org/gcal.org"
+                               "~/org/i.org"
+                               "~/org/schedule.org"
+                               "~/org/workinbonree.org"
+                               "~/org/inbox.org"))
 #+end_src
+*** 规划
+agenda视图对事项的操作
+- S-up/down : 调整优先级
+- t : 调整todo关键词
+- tab : 在另外的窗口打开对应事项
+- C-k : 删除事项
+- z : 添加笔记,笔记会保存在源文件中
+- C-x u : undo
+- r : rebuild buf
+- a : archive 将源文件中的项移动到对应归档文件中
+- s : 保存所有对应的org文件，undo将会失效
+
 ** org-capture
 org收集工具
 #+begin_src emacs-lisp
